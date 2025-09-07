@@ -153,20 +153,18 @@ function onLocationFound(e){
 
         if(afstand < 20){
             if(!visited){
-                localStorage.setItem('huis_'+huis.id,'true');
-                huis.marker.setIcon(halloweenVisitedIcon);
+                localStorage.setItem('huis_'+huis.id,'true');  // markeer als bezocht
+                huis.marker.setIcon(halloweenVisitedIcon);      // verandert naar bezocht icoon
             }
-            // active icon met pulse animatie
-            huis.marker.setIcon(halloweenActiveIcon);
-            markerEl.classList.add("pulse-icon");
+            huis.marker.setIcon(halloweenActiveIcon);          // active icon
+            markerEl.classList.add("pulse-icon");             // pulse animatie
         } else {
-            if(!visited){
-                huis.marker.setIcon(halloweenActiveIcon); // blijft standaard active
-                markerEl.classList.remove("pulse-icon");
+            if(visited){
+                huis.marker.setIcon(halloweenVisitedIcon);     // blijft zichtbaar als bezocht
             } else {
-                huis.marker.setIcon(halloweenVisitedIcon);
-                markerEl.classList.remove("pulse-icon");
+                huis.marker.setIcon(halloweenActiveIcon);      // standaard active
             }
+            markerEl.classList.remove("pulse-icon");
         }
     });
 }
