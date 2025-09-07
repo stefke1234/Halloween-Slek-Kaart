@@ -49,7 +49,6 @@
       text-align: center;
     }
 
-    /* Pulse animatie */
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.3); }
@@ -59,7 +58,6 @@
       animation: pulse 1.2s infinite;
     }
 
-    /* Decoratie */
     .decoratie {
       position: absolute;
       z-index: 2000;
@@ -71,7 +69,6 @@
     .decoratie.bottomleft { bottom: 15px; left: 5px; }
     .decoratie.bottomright { bottom: 15px; right: 5px; }
 
-    /* Volg mij knop CSS */
     .leaflet-control-follow {
       background: #ff6600;
       color: white;
@@ -95,18 +92,18 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // --- Kaart aanmaken ---
+    // --- Kaart ---
     var map = L.map('map').setView([52.0000, 5.0002], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // --- Huizen met activiteiten ---
+    // --- Huizen ---
     var huizen = [
-      {lat: 51.08958778297493, lon: 5.886314203836674, activiteit: "Pompoen snijden"},
-      {lat: 51.087137413065335, lon: 5.887101260863674, activiteit: "Spooktocht"},
-      {lat: 51.09177802736001, lon: 5.8845766590076165, activiteit: "Trick or Treat"}
+      {id:1, lat:51.089209247540005, lon:5.886198862619411, activiteit:"Pompoen snijden"},
+      {id:2, lat:51.08712549370868, lon:5.887171622260087, activiteit:"Spooktocht"},
+      {id:3, lat:51.091792299924435, lon:5.884509115831604, activiteit:"Trick or Treat"}
     ];
 
     var halloweenIcon = L.icon({
@@ -123,10 +120,19 @@
         popupAnchor: [0,-40]
     });
 
+    var halloweenVisitedIcon = L.icon({
+        iconUrl: 'pumpkin_visited.png',
+        iconSize: [32,32],
+        iconAnchor: [16,32],
+        popupAnchor: [0,-32]
+    });
+
     huizen.forEach(function(huis){
-      huis.marker = L.marker([huis.lat, huis.lon], {icon: halloweenIcon})
-        .addTo(map)
-        .bindPopup(huis.activiteit);
+        var visited = localStorage.getItem('huis_'+huis.id) === 'true';
+        var iconToUse = visited ? halloweenVisitedIcon : halloweenIcon;
+        huis.marker = L.marker([huis.lat, huis.lon], {icon: iconToUse})
+            .addTo(map)
+            .bindPopup(huis.activiteit);
     });
 
     // --- User marker ---
@@ -162,7 +168,7 @@
     };
     followMe.addTo(map);
 
-    // --- Detecteer handmatige beweging ---
+    // Detecteer handmatige beweging
     map.on('movestart', function(){
         userMovedMap = true;
     });
@@ -185,18 +191,31 @@
             map.panTo(latlng, {animate:true, duration:0.5});
         }
 
-        // Huizen afstand check
+        // Huizen check
         huizen.forEach(function(huis){
             var afstand = map.distance(latlng,[huis.lat,huis.lon]);
             var markerEl = huis.marker.getElement();
             if(!markerEl) return;
 
+            var visited = localStorage.getItem('huis_'+huis.id) === 'true';
+
             if(afstand<20){
-                huis.marker.setIcon(halloweenActiveIcon);
+                if(!visited){
+                    // markeer als bezocht
+                    localStorage.setItem('huis_'+huis.id,'true');
+                    huis.marker.setIcon(halloweenVisitedIcon);
+                } else {
+                    huis.marker.setIcon(halloweenActiveIcon);
+                }
                 markerEl.classList.add("pulse-icon");
             } else {
-                huis.marker.setIcon(halloweenIcon);
-                markerEl.classList.remove("pulse-icon");
+                if(!visited){
+                    huis.marker.setIcon(halloweenIcon);
+                    markerEl.classList.remove("pulse-icon");
+                } else {
+                    huis.marker.setIcon(halloweenVisitedIcon);
+                    markerEl.classList.remove("pulse-icon");
+                }
             }
         });
     }
