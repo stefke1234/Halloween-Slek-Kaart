@@ -33,7 +33,7 @@
     var overlayBounds = [[52.0001, 5.0001], [51.9999, 5.0003]]; // pas aan naar de echte hoekcoördinaten
     L.imageOverlay(overlayUrl, overlayBounds, {opacity: 0.7}).addTo(map);
 
-    // --- 4. Testbounding box (optioneel, check overlayBounds) ---
+    // --- 4. Testbounding box (optioneel) ---
     L.rectangle(overlayBounds, {color: "red", weight: 2, fillOpacity: 0}).addTo(map);
 
     // --- 5. Voeg markers voor huizen met activiteiten toe ---
@@ -49,13 +49,12 @@
         .bindPopup(huis.activiteit);
     });
 
-    // --- 6. Live locatie van de gebruiker (bewegend) ---
+    // --- 6. Live locatie van de gebruiker (bewegend, vaste zoom) ---
     var userMarker;
+    var fixedZoom = 17; // vast zoomniveau
 
-    // Start live tracking
-    map.locate({setView: true, maxZoom: 18, watch: true, enableHighAccuracy: true});
+    map.locate({setView: true, maxZoom: fixedZoom, watch: true, enableHighAccuracy: true});
 
-    // Locatie-update functie
     function onLocationFound(e) {
         var latlng = e.latlng;
 
@@ -73,8 +72,9 @@
             userMarker.setLatLng(latlng);
         }
 
-        // Kaart automatisch meebewegen
-        map.setView(latlng);
+        // Kaart soepel meebewegen zonder zoom te veranderen
+        map.setZoom(fixedZoom);
+        map.panTo(latlng, {animate: true, duration: 0.5});
     }
 
     function onLocationError(e) {
