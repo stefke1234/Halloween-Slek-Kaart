@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halloween Slek Kaart</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    #map { width: 100%; height: 100%; }
+    .leaflet-popup-content-wrapper {
+      background-color: rgba(0,0,0,0.8);
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // --- 1. Maak de kaart ---
+    var map = L.map('map').setView([52.0000, 5.0002], 17); // pas aan naar Slek coördinaten
+
+    // --- 2. Voeg basiskaart toe ---
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // --- 3. Voeg rectified PNG-overlay toe ---
+    var overlayUrl = 'overlay.png'; // zet hier je eigen PNG-bestand
+    var overlayBounds = [[52.0001, 5.0001], [51.9999, 5.0003]]; // pas dit aan naar jouw overlay coördinaten
+    L.imageOverlay(overlayUrl, overlayBounds, {opacity: 0.7}).addTo(map);
+
+    // --- 4. Voeg markers voor huizen met activiteiten toe ---
+    var huizen = [
+      {lat: 52.0000, lon: 5.0002, activiteit: "Pompoen snijden"},
+      {lat: 52.00005, lon: 5.00025, activiteit: "Spooktocht"},
+      {lat: 51.99995, lon: 5.00015, activiteit: "Trick or Treat"}
+    ];
+
+    huizen.forEach(function(huis){
+      L.marker([huis.lat, huis.lon])
+        .addTo(map)
+        .bindPopup(huis.activiteit);
+    });
+
+    // --- 5. Live locatie van de gebruiker ---
+    map.locate({setView: true, maxZoom: 18, watch: true}); // watch=true voor live updates
+
+    function onLocationFound(e) {
+      if(!window.userMarker){
+        window.userMarker = L.marker(e.latlng, {icon: L.icon({
+          iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
+          iconSize: [30, 30],
+          iconAnchor: [15, 30]
+        })}).addTo(map).bindPopup("Jij bent hier!");
+      } else {
+        window.userMarker.setLatLng(e.latlng);
+      }
+    }
+
+    map.on('locationfound', onLocationFound);
+
+    function onLocationError(e) {
+      alert("Kan je locatie niet vinden: " + e.message);
+    }
+
+    map.on('locationerror', onLocationError);
+
+  </script>
+</body>
+</html>
