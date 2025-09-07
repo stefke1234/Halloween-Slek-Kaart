@@ -29,11 +29,14 @@
     }).addTo(map);
 
     // --- 3. Voeg rectified PNG-overlay toe ---
-    var overlayUrl = '96780.png'; // zet hier je eigen PNG-bestand
-    var overlayBounds = [[52.0001, 5.0001], [51.9999, 5.0003]]; // pas dit aan naar jouw overlay coördinaten
+    var overlayUrl = '96780.png'; // jouw PNG-bestand
+    var overlayBounds = [[51.0914274843087, 5.878189938856174], [51.08231641707148, 5.888975509475454]]; // pas aan naar de echte hoekcoördinaten
     L.imageOverlay(overlayUrl, overlayBounds, {opacity: 0.7}).addTo(map);
 
-    // --- 4. Voeg markers voor huizen met activiteiten toe ---
+    // --- 4. Testbounding box (optioneel, check overlayBounds) ---
+    L.rectangle(overlayBounds, {color: "red", weight: 2, fillOpacity: 0}).addTo(map);
+
+    // --- 5. Voeg markers voor huizen met activiteiten toe ---
     var huizen = [
       {lat: 52.0000, lon: 5.0002, activiteit: "Pompoen snijden"},
       {lat: 52.00005, lon: 5.00025, activiteit: "Spooktocht"},
@@ -46,7 +49,7 @@
         .bindPopup(huis.activiteit);
     });
 
-    // --- 5. Live locatie van de gebruiker ---
+    // --- 6. Live locatie van de gebruiker ---
     map.locate({setView: true, maxZoom: 18, watch: true}); // watch=true voor live updates
 
     function onLocationFound(e) {
@@ -72,4 +75,3 @@
   </script>
 </body>
 </html>
-
