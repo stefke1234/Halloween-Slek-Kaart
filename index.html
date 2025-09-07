@@ -156,7 +156,7 @@ followMe.addTo(map);
         popupAnchor: [0, -36]
     });
 
-    map.locate({setView: true, watch: true, enableHighAccuracy: true});
+    map.locate({setView: false, watch: true, enableHighAccuracy: true});
 
     function onLocationFound(e) {
         var latlng = e.latlng;
@@ -195,6 +195,7 @@ followMe.addTo(map);
   </script>
 </body>
 </html>
+
 
 
 
