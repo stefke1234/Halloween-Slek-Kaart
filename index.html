@@ -21,35 +21,44 @@
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
     // --- 1. Maak de kaart ---
-    var map = L.map('map').setView([52.0000, 5.0002], 17); // pas aan naar Slek coördinaten
+    var map = L.map('map').setView([52.0000, 5.0002], 17);
 
     // --- 2. Voeg basiskaart toe ---
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // --- 3. Voeg markers/icoontjes voor activiteiten toe ---
+    // --- 3. Huizen met activiteiten ---
     var huizen = [
       {lat: 52.0000, lon: 5.0002, activiteit: "Pompoen snijden"},
       {lat: 52.00005, lon: 5.00025, activiteit: "Spooktocht"},
       {lat: 51.99995, lon: 5.00015, activiteit: "Trick or Treat"}
     ];
 
-    // Gebruik een custom icoontje voor activiteiten
+    // Standaard icoon
     var halloweenIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616408.png', // pompoen icoon
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616408.png',
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]
     });
 
+    // Geanimeerd knipperend icoon
+    var halloweenActiveIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616432.png', // ander icoon voor “licht aan”
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+    });
+
+    // Maak de markers aan
     huizen.forEach(function(huis){
-      L.marker([huis.lat, huis.lon], {icon: halloweenIcon})
+      huis.marker = L.marker([huis.lat, huis.lon], {icon: halloweenIcon})
         .addTo(map)
         .bindPopup(huis.activiteit);
     });
 
-    // --- 4. Live locatie van de gebruiker (bewegend, vaste zoom) ---
+    // --- 4. Live locatie van de gebruiker ---
     var userMarker;
     var fixedZoom = 17;
 
@@ -61,7 +70,7 @@
         if (!userMarker) {
             userMarker = L.marker(latlng, {
                 icon: L.icon({
-                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png', // gebruiker
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
                     iconSize: [30, 30],
                     iconAnchor: [15, 30]
                 })
@@ -70,9 +79,18 @@
             userMarker.setLatLng(latlng);
         }
 
-        // Kaart soepel meebewegen zonder zoom te veranderen
         map.setZoom(fixedZoom);
         map.panTo(latlng, {animate: true, duration: 0.5});
+
+        // --- 5. Check afstand tot huizen en activeer effect ---
+        huizen.forEach(function(huis){
+            var afstand = map.distance(latlng, [huis.lat, huis.lon]); // in meters
+            if (afstand < 20) {
+                huis.marker.setIcon(halloweenActiveIcon);
+            } else {
+                huis.marker.setIcon(halloweenIcon);
+            }
+        });
     }
 
     function onLocationError(e) {
