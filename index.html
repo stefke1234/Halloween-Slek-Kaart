@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
   <title>Halloween Slek Kaart</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -10,7 +10,7 @@
       height: 100%; 
       margin: 0; 
       padding: 0; 
-      background: #1a1a1a; /* spooky achtergrond */
+      background: #1a1a1a;
       font-family: "Creepster", cursive, Arial, sans-serif;
       color: #fff;
       overflow: hidden;
@@ -21,7 +21,7 @@
       padding: 10px;
       background: linear-gradient(90deg, #ff6600, #cc3300);
       color: white;
-      font-size: 1.3rem;
+      font-size: 1.5rem;
       font-weight: bold;
       text-shadow: 0 0 8px black, 0 0 12px #ff6600;
       border-bottom: 3px solid black;
@@ -30,9 +30,9 @@
     }
 
     #map {
-      width: calc(100% - 20px);   /* laat ruimte voor rand */
-      height: calc(100% - 120px); /* rekening houden met header + marge */
-      margin: 10px auto;          /* centreren */
+      width: calc(100% - 20px);   
+      height: calc(100% - 120px); 
+      margin: 10px auto;          
       border: 6px solid #ff6600;
       border-radius: 20px;
       box-shadow: 0 0 20px #ff6600, 0 0 40px #660000;
@@ -70,6 +70,17 @@
     .decoratie.topright { top: 60px; right: 5px; transform: rotate(15deg); }
     .decoratie.bottomleft { bottom: 15px; left: 5px; }
     .decoratie.bottomright { bottom: 15px; right: 5px; }
+
+    /* Volg mij knop CSS */
+    .leaflet-control-follow {
+      background: #ff6600;
+      color: white;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-weight: bold;
+      border: 2px solid black;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
@@ -84,61 +95,32 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    var map = L.map('map').setView([51.085969788608985, 5.881525974822077], 17);
+    // --- Kaart aanmaken ---
+    var map = L.map('map').setView([52.0000, 5.0002], 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Control-knop "Volg mij"
-var followMe = L.control({position: 'topright'});
-var isFollowing = true; // standaard volgen aan
-
-followMe.onAdd = function(map) {
-    var div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
-    div.style.background = '#ff6600';
-    div.style.color = 'white';
-    div.style.padding = '5px 10px';
-    div.style.cursor = 'pointer';
-    div.style.fontWeight = 'bold';
-    div.style.border = '2px solid black';
-    div.style.borderRadius = '6px';
-    div.innerHTML = '📍 Volg mij';
-
-    // toggle volgen aan/uit
-    div.onclick = function() {
-        isFollowing = !isFollowing;
-        if (isFollowing) {
-            div.style.background = '#ff6600';
-            map.panTo(userMarker.getLatLng());
-        } else {
-            div.style.background = '#555';
-        }
-    };
-
-    return div;
-};
-
-followMe.addTo(map);
-
-
+    // --- Huizen met activiteiten ---
     var huizen = [
-      {lat: 51.08712084986514, lon: 5.887151433872158, activiteit: "Spooktocht"},
-      {lat: 51.091824615282064, lon: 5.884578717944501, activiteit: "Trick or Treat"}
+      {lat: 51.08958778297493, lon: 5.886314203836674, activiteit: "Pompoen snijden"},
+      {lat: 51.087137413065335, lon: 5.887101260863674, activiteit: "Spooktocht"},
+      {lat: 51.09177802736001, lon: 5.8845766590076165, activiteit: "Trick or Treat"}
     ];
 
     var halloweenIcon = L.icon({
         iconUrl: 'pumpkin_active.png',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
+        iconSize: [32,32],
+        iconAnchor: [16,32],
+        popupAnchor: [0,-32]
     });
 
     var halloweenActiveIcon = L.icon({
         iconUrl: 'pumpkin_active.png',
-        iconSize: [40, 40],
-        iconAnchor: [20, 40],
-        popupAnchor: [0, -40]
+        iconSize: [40,40],
+        iconAnchor: [20,40],
+        popupAnchor: [0,-40]
     });
 
     huizen.forEach(function(huis){
@@ -147,21 +129,51 @@ followMe.addTo(map);
         .bindPopup(huis.activiteit);
     });
 
+    // --- User marker ---
     var userMarker;
-
     var userIcon = L.icon({
         iconUrl: 'user.png',
-        iconSize: [36, 36],
-        iconAnchor: [18, 36],
-        popupAnchor: [0, -36]
+        iconSize: [36,36],
+        iconAnchor: [18,36],
+        popupAnchor: [0,-36]
     });
 
-    map.locate({setView: false, watch: true, enableHighAccuracy: true});
+    // --- Volg mij knop ---
+    var isFollowing = true;
+    var userMovedMap = false;
 
-    function onLocationFound(e) {
+    var followMe = L.control({position:'topright'});
+    followMe.onAdd = function(map){
+        var div = L.DomUtil.create('div', 'leaflet-control-follow');
+        div.innerHTML = '📍 Volg mij';
+        div.onclick = function() {
+            isFollowing = !isFollowing;
+            if(isFollowing){
+                div.style.background = '#ff6600';
+                userMovedMap = false;
+                if(userMarker){
+                    map.panTo(userMarker.getLatLng());
+                }
+            } else {
+                div.style.background = '#555';
+            }
+        }
+        return div;
+    };
+    followMe.addTo(map);
+
+    // --- Detecteer handmatige beweging ---
+    map.on('movestart', function(){
+        userMovedMap = true;
+    });
+
+    // --- Locatie volgen ---
+    map.locate({setView:false, watch:true, enableHighAccuracy:true});
+
+    function onLocationFound(e){
         var latlng = e.latlng;
 
-        if (!userMarker) {
+        if(!userMarker){
             userMarker = L.marker(latlng, {icon: userIcon})
                 .addTo(map)
                 .bindPopup("Jij bent hier!");
@@ -169,14 +181,17 @@ followMe.addTo(map);
             userMarker.setLatLng(latlng);
         }
 
-        map.panTo(latlng, {animate: true, duration: 0.5});
+        if(isFollowing && !userMovedMap){
+            map.panTo(latlng, {animate:true, duration:0.5});
+        }
 
+        // Huizen afstand check
         huizen.forEach(function(huis){
-            var afstand = map.distance(latlng, [huis.lat, huis.lon]);
+            var afstand = map.distance(latlng,[huis.lat,huis.lon]);
             var markerEl = huis.marker.getElement();
-            if (!markerEl) return;
+            if(!markerEl) return;
 
-            if (afstand < 20) {
+            if(afstand<20){
                 huis.marker.setIcon(halloweenActiveIcon);
                 markerEl.classList.add("pulse-icon");
             } else {
@@ -186,7 +201,7 @@ followMe.addTo(map);
         });
     }
 
-    function onLocationError(e) {
+    function onLocationError(e){
         alert("Kan je locatie niet vinden: " + e.message);
     }
 
@@ -195,7 +210,3 @@ followMe.addTo(map);
   </script>
 </body>
 </html>
-
-
-
-
