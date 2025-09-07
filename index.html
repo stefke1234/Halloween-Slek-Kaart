@@ -99,7 +99,6 @@ var userCircle = L.circle([0,0], {radius:20, color:'orange', fillColor:'rgba(255
 
 // --- Volg mij knop ---
 var isFollowing = true;
-var userMovedMap = false;
 var followMe = L.control({position:'topright'});
 followMe.onAdd = function(map){
     var div = L.DomUtil.create('div', 'leaflet-control-follow');
@@ -109,20 +108,14 @@ followMe.onAdd = function(map){
         L.DomEvent.stopPropagation(e);
         L.DomEvent.preventDefault(e);
         isFollowing = !isFollowing;
-        if(isFollowing){
-            div.style.background = '#ff6600';
-            userMovedMap = false;
-            if(userMarker) map.panTo(userMarker.getLatLng());
-        } else {
-            div.style.background = '#555';
+        div.style.background = isFollowing ? '#ff6600' : '#555';
+        if(isFollowing && userMarker){
+            map.panTo(userMarker.getLatLng());
         }
     });
     return div;
 };
 followMe.addTo(map);
-
-// Detecteer handmatige beweging
-map.on('movestart', function(){ userMovedMap = true; });
 
 // --- Locatie volgen ---
 map.locate({setView:false, watch:true, enableHighAccuracy:true});
@@ -139,7 +132,8 @@ function onLocationFound(e){
     // Update cirkel rond gebruiker
     userCircle.setLatLng(latlng);
 
-    if(isFollowing && !userMovedMap){
+    // Alleen pannen als volgen actief
+    if(isFollowing){
         map.panTo(latlng, {animate:true, duration:0.5});
     }
 
@@ -151,19 +145,20 @@ function onLocationFound(e){
 
         var visited = localStorage.getItem('huis_'+huis.id) === 'true';
 
-        if(afstand < 20){
-            if(!visited){
-                localStorage.setItem('huis_'+huis.id,'true');  // markeer als bezocht
-                huis.marker.setIcon(halloweenVisitedIcon);      // verandert naar bezocht icoon
-            }
-            huis.marker.setIcon(halloweenActiveIcon);          // active icon
-            markerEl.classList.add("pulse-icon");             // pulse animatie
+        if(afstand < 20 && !visited){
+            // Binnen 20m en nog niet bezocht: pulse animatie
+            markerEl.classList.add("pulse-icon");
+            huis.marker.setIcon(halloweenActiveIcon);
         } else {
-            if(visited){
-                huis.marker.setIcon(halloweenVisitedIcon);     // blijft zichtbaar als bezocht
-            } else {
-                huis.marker.setIcon(halloweenActiveIcon);      // standaard active
-            }
+            // Buiten 20m of al bezocht
+            markerEl.classList.remove("pulse-icon");
+            huis.marker.setIcon(visited ? halloweenVisitedIcon : halloweenActiveIcon);
+        }
+
+        // Markeer als bezocht zodra binnen 20m radius
+        if(afstand < 20 && !visited){
+            localStorage.setItem('huis_'+huis.id,'true');
+            huis.marker.setIcon(halloweenVisitedIcon);
             markerEl.classList.remove("pulse-icon");
         }
     });
