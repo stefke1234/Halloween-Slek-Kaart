@@ -55,6 +55,29 @@ header {
 </head>
 <body>
 <header>🎃 Halloween Tocht Slek 🎃</header>
+
+  <!-- Reset knop alleen voor jou -->
+<button onclick="resetHuizen()" style="position:absolute;top:60px;left:10px;z-index:3000;">Reset Huizen</button>
+
+<div id="map"></div>
+
+<!-- Decoratie -->
+<img src="bat.png" class="decoratie topleft" alt="Vleermuis">
+<img src="web.png" class="decoratie topright" alt="Spinnenweb">
+<img src="bat.png" class="decoratie bottomleft" alt="Vleermuis">
+<img src="web.png" class="decoratie bottomright" alt="Spinnenweb">
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+// Reset functie
+function resetHuizen(){
+    [1,2,3].forEach(id => localStorage.removeItem('huis_'+id));
+    alert("Huizen gereset!");
+    location.reload(); // pagina herladen zodat alle huizen weer als niet bezocht verschijnen
+}
+  
+  
 <div id="map"></div>
 
 <!-- Decoratie -->
@@ -173,3 +196,4 @@ map.on('locationerror', onLocationError);
 </script>
 </body>
 </html>
+
