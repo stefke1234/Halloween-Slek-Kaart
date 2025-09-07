@@ -35,17 +35,17 @@
       {lat: 51.99995, lon: 5.00015, activiteit: "Trick or Treat"}
     ];
 
-    // Standaard pompoen icoon
+    // Standaard pompoen icoon (eigen PNG)
     var halloweenIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616408.png', // pompoen
+        iconUrl: 'pumpkin.png',
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]
     });
 
-    // Actief pompoen icoon (groter)
+    // Actief pompoen icoon (bij dichtbij gebruiker)
     var halloweenActiveIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616432.png', // actieve pompoen
+        iconUrl: 'pumpkin_active.png',
         iconSize: [40, 40],
         iconAnchor: [20, 40],
         popupAnchor: [0, -40]
@@ -82,7 +82,7 @@
         map.setZoom(fixedZoom);
         map.panTo(latlng, {animate: true, duration: 0.5});
 
-        // Check afstand tot huizen en activeer effect
+        // --- 5. Check afstand tot huizen en activeer effect ---
         huizen.forEach(function(huis){
             var afstand = map.distance(latlng, [huis.lat, huis.lon]);
             if (afstand < 20) {
