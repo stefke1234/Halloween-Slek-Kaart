@@ -90,6 +90,38 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Control-knop "Volg mij"
+var followMe = L.control({position: 'topright'});
+var isFollowing = true; // standaard volgen aan
+
+followMe.onAdd = function(map) {
+    var div = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+    div.style.background = '#ff6600';
+    div.style.color = 'white';
+    div.style.padding = '5px 10px';
+    div.style.cursor = 'pointer';
+    div.style.fontWeight = 'bold';
+    div.style.border = '2px solid black';
+    div.style.borderRadius = '6px';
+    div.innerHTML = '📍 Volg mij';
+
+    // toggle volgen aan/uit
+    div.onclick = function() {
+        isFollowing = !isFollowing;
+        if (isFollowing) {
+            div.style.background = '#ff6600';
+            map.panTo(userMarker.getLatLng());
+        } else {
+            div.style.background = '#555';
+        }
+    };
+
+    return div;
+};
+
+followMe.addTo(map);
+
+
     var huizen = [
       {lat: 51.08712084986514, lon: 5.887151433872158, activiteit: "Spooktocht"},
       {lat: 51.091824615282064, lon: 5.884578717944501, activiteit: "Trick or Treat"}
@@ -116,7 +148,6 @@
     });
 
     var userMarker;
-    var fixedZoom = 15;
 
     var userIcon = L.icon({
         iconUrl: 'user.png',
@@ -125,7 +156,7 @@
         popupAnchor: [0, -36]
     });
 
-    map.locate({setView: true, maxZoom: fixedZoom, watch: true, enableHighAccuracy: true});
+    map.locate({setView: true, watch: true, enableHighAccuracy: true});
 
     function onLocationFound(e) {
         var latlng = e.latlng;
@@ -138,7 +169,6 @@
             userMarker.setLatLng(latlng);
         }
 
-        map.setZoom(fixedZoom);
         map.panTo(latlng, {animate: true, duration: 0.5});
 
         huizen.forEach(function(huis){
@@ -165,5 +195,6 @@
   </script>
 </body>
 </html>
+
 
 
