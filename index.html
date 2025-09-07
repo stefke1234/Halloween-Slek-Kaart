@@ -51,33 +51,28 @@ header {
   cursor: pointer; font-weight: bold; border: 2px solid black;
   border-radius: 6px; user-select: none;
 }
+
+#resetButton {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  z-index: 3000;
+  background: #ff6600;
+  color: white;
+  border: 2px solid black;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
 <header>🎃 Halloween Tocht Slek 🎃</header>
 
-  <!-- Reset knop alleen voor jou -->
-<button onclick="resetHuizen()" style="position:absolute;top:60px;left:10px;z-index:3000;">Reset Huizen</button>
+<!-- Reset knop alleen voor de bouwer -->
+<button id="resetButton" onclick="resetHuizen()">Reset Huizen</button>
 
-<div id="map"></div>
-
-<!-- Decoratie -->
-<img src="bat.png" class="decoratie topleft" alt="Vleermuis">
-<img src="web.png" class="decoratie topright" alt="Spinnenweb">
-<img src="bat.png" class="decoratie bottomleft" alt="Vleermuis">
-<img src="web.png" class="decoratie bottomright" alt="Spinnenweb">
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-// Reset functie
-function resetHuizen(){
-    [1,2,3].forEach(id => localStorage.removeItem('huis_'+id));
-    alert("Huizen gereset!");
-    location.reload(); // pagina herladen zodat alle huizen weer als niet bezocht verschijnen
-}
-  
-  
 <div id="map"></div>
 
 <!-- Decoratie -->
@@ -96,9 +91,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // --- Huizen ---
 var huizen = [
-      {id:1, lat:51.08915177801586, lon:5.886047856448435, activiteit:"Pompoen snijden"},
-      {id:2, lat:51.08712549370868, lon:5.887171622260087, activiteit:"Spooktocht"},
-      {id:3, lat:51.091792299924435, lon:5.884509115831604, activiteit:"Trick or Treat"}
+  {id:1, lat:52.0000, lon:5.0002, activiteit:"Pompoen snijden"},
+  {id:2, lat:52.00005, lon:5.00025, activiteit:"Spooktocht"},
+  {id:3, lat:51.99995, lon:5.00015, activiteit:"Trick or Treat"}
 ];
 
 var halloweenActiveIcon = L.icon({iconUrl:'pumpkin_active.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
@@ -139,6 +134,13 @@ followMe.onAdd = function(map){
     return div;
 };
 followMe.addTo(map);
+
+// --- Reset functie alleen voor jou ---
+function resetHuizen(){
+    [1,2,3].forEach(id => localStorage.removeItem('huis_'+id));
+    alert("Huizen gereset!");
+    location.reload();
+}
 
 // --- Locatie volgen ---
 map.locate({setView:false, watch:true, enableHighAccuracy:true});
@@ -196,4 +198,3 @@ map.on('locationerror', onLocationError);
 </script>
 </body>
 </html>
-
