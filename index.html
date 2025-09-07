@@ -28,36 +28,30 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // --- 3. Controleer of PNG bestaat (debug) ---
-    var img = new Image();
-    img.onload = () => console.log("Overlay 96780.png geladen!");
-    img.onerror = () => console.error("Overlay 96780.png niet gevonden!");
-    img.src = '96780.png'; // plaats dit bestand in dezelfde map als index.html
-
-    // --- 4. Voeg rectified PNG-overlay toe ---
-    var overlayUrl = '96780.png';
-    var overlayBounds = [[52.0001, 5.0001], [51.9999, 5.0003]]; // pas aan naar echte hoekcoördinaten
-    var overlay = L.imageOverlay(overlayUrl, overlayBounds, {opacity: 0.7}).addTo(map);
-
-    // --- 5. Rode testrectangle om overlay te controleren ---
-    L.rectangle(overlayBounds, {color: "red", weight: 2, fillOpacity: 0}).addTo(map);
-
-    // --- 6. Voeg markers voor huizen met activiteiten toe ---
+    // --- 3. Voeg markers/icoontjes voor activiteiten toe ---
     var huizen = [
       {lat: 52.0000, lon: 5.0002, activiteit: "Pompoen snijden"},
       {lat: 52.00005, lon: 5.00025, activiteit: "Spooktocht"},
       {lat: 51.99995, lon: 5.00015, activiteit: "Trick or Treat"}
     ];
 
+    // Gebruik een custom icoontje voor activiteiten
+    var halloweenIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616408.png', // pompoen icoon
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
     huizen.forEach(function(huis){
-      L.marker([huis.lat, huis.lon])
+      L.marker([huis.lat, huis.lon], {icon: halloweenIcon})
         .addTo(map)
         .bindPopup(huis.activiteit);
     });
 
-    // --- 7. Live locatie van de gebruiker (bewegend, vaste zoom) ---
+    // --- 4. Live locatie van de gebruiker (bewegend, vaste zoom) ---
     var userMarker;
-    var fixedZoom = 17; // vast zoomniveau
+    var fixedZoom = 17;
 
     map.locate({setView: true, maxZoom: fixedZoom, watch: true, enableHighAccuracy: true});
 
@@ -65,20 +59,18 @@
         var latlng = e.latlng;
 
         if (!userMarker) {
-            // Eerste keer marker aanmaken
             userMarker = L.marker(latlng, {
                 icon: L.icon({
-                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png', // gebruiker
                     iconSize: [30, 30],
                     iconAnchor: [15, 30]
                 })
             }).addTo(map).bindPopup("Jij bent hier!");
         } else {
-            // Marker verplaatsen
             userMarker.setLatLng(latlng);
         }
 
-        // Kaart vloeiend meebewegen zonder zoom te veranderen
+        // Kaart soepel meebewegen zonder zoom te veranderen
         map.setZoom(fixedZoom);
         map.panTo(latlng, {animate: true, duration: 0.5});
     }
