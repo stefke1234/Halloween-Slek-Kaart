@@ -30,7 +30,7 @@
 
     // --- 3. Voeg rectified PNG-overlay toe ---
     var overlayUrl = '96780.png'; // jouw PNG-bestand
-    var overlayBounds = [[51.0914274843087, 5.878189938856174], [51.08231641707148, 5.888975509475454]]; // pas aan naar de echte hoekcoördinaten
+    var overlayBounds = [[52.0001, 5.0001], [51.9999, 5.0003]]; // pas aan naar de echte hoekcoördinaten
     L.imageOverlay(overlayUrl, overlayBounds, {opacity: 0.7}).addTo(map);
 
     // --- 4. Testbounding box (optioneel, check overlayBounds) ---
@@ -49,27 +49,39 @@
         .bindPopup(huis.activiteit);
     });
 
-    // --- 6. Live locatie van de gebruiker ---
-    map.locate({setView: true, maxZoom: 18, watch: true}); // watch=true voor live updates
+    // --- 6. Live locatie van de gebruiker (bewegend) ---
+    var userMarker;
 
+    // Start live tracking
+    map.locate({setView: true, maxZoom: 18, watch: true, enableHighAccuracy: true});
+
+    // Locatie-update functie
     function onLocationFound(e) {
-      if(!window.userMarker){
-        window.userMarker = L.marker(e.latlng, {icon: L.icon({
-          iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
-          iconSize: [30, 30],
-          iconAnchor: [15, 30]
-        })}).addTo(map).bindPopup("Jij bent hier!");
-      } else {
-        window.userMarker.setLatLng(e.latlng);
-      }
+        var latlng = e.latlng;
+
+        if (!userMarker) {
+            // Eerste keer marker aanmaken
+            userMarker = L.marker(latlng, {
+                icon: L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 30]
+                })
+            }).addTo(map).bindPopup("Jij bent hier!");
+        } else {
+            // Marker verplaatsen
+            userMarker.setLatLng(latlng);
+        }
+
+        // Kaart automatisch meebewegen
+        map.setView(latlng);
+    }
+
+    function onLocationError(e) {
+        alert("Kan je locatie niet vinden: " + e.message);
     }
 
     map.on('locationfound', onLocationFound);
-
-    function onLocationError(e) {
-      alert("Kan je locatie niet vinden: " + e.message);
-    }
-
     map.on('locationerror', onLocationError);
 
   </script>
