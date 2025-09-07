@@ -30,22 +30,22 @@
 
     // --- 3. Huizen met activiteiten ---
     var huizen = [
-      {lat: 51.08927455129135, lon: 5.886254833479515, activiteit: "Spannend Verhaal"},
-      {lat: 51.087105725095995, lon: 5.887140759806673, activiteit: "pompoen snijden"},
-      {lat: 51.091794037358284, lon: 5.884577471463792, activiteit: "Trick or Treat"}
+      {lat: 52.0000, lon: 5.0002, activiteit: "Pompoen snijden"},
+      {lat: 52.00005, lon: 5.00025, activiteit: "Spooktocht"},
+      {lat: 51.99995, lon: 5.00015, activiteit: "Trick or Treat"}
     ];
 
-    // Standaard icoon
+    // Standaard pompoen icoon
     var halloweenIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616408.png',
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616408.png', // pompoen
         iconSize: [32, 32],
         iconAnchor: [16, 32],
         popupAnchor: [0, -32]
     });
 
-    // Geanimeerd knipperend icoon
+    // Actief pompoen icoon (groter)
     var halloweenActiveIcon = L.icon({
-        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616432.png', // ander icoon voor “licht aan”
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/616/616432.png', // actieve pompoen
         iconSize: [40, 40],
         iconAnchor: [20, 40],
         popupAnchor: [0, -40]
@@ -70,7 +70,7 @@
         if (!userMarker) {
             userMarker = L.marker(latlng, {
                 icon: L.icon({
-                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png',
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/64/64113.png', // gebruiker
                     iconSize: [30, 30],
                     iconAnchor: [15, 30]
                 })
@@ -82,9 +82,9 @@
         map.setZoom(fixedZoom);
         map.panTo(latlng, {animate: true, duration: 0.5});
 
-        // --- 5. Check afstand tot huizen en activeer effect ---
+        // Check afstand tot huizen en activeer effect
         huizen.forEach(function(huis){
-            var afstand = map.distance(latlng, [huis.lat, huis.lon]); // in meters
+            var afstand = map.distance(latlng, [huis.lat, huis.lon]);
             if (afstand < 20) {
                 huis.marker.setIcon(halloweenActiveIcon);
             } else {
@@ -103,4 +103,3 @@
   </script>
 </body>
 </html>
-
