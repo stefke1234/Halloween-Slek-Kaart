@@ -110,7 +110,7 @@ huizen.forEach(function(huis){
 
 // --- User marker ---
 var userMarker;
-var userIcon = L.icon({iconUrl:'user.png', iconSize:[36,36], iconAnchor:[18,36], popupAnchor:[0,-36]});
+var userIcon = L.icon({iconUrl:'user.png', iconSize:[36,48], iconAnchor:[18,36], popupAnchor:[0,-36]});
 
 // --- Visuele cirkel 20m ---
 var userCircle = L.circle([0,0], {radius:20, color:'orange', fillColor:'rgba(255,165,0,0.2)', weight:2}).addTo(map);
@@ -198,4 +198,5 @@ map.on('locationerror', onLocationError);
 </script>
 </body>
 </html>
+
 
