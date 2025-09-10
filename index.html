@@ -58,7 +58,7 @@ header {
 
 <div id="map"></div>
 
-<!-- Decoratie (voeg bat.png en web.png toe aan repo) -->
+<!-- Decoratie -->
 <img src="bat.png" class="decoratie topleft" alt="Vleermuis">
 <img src="web.png" class="decoratie topright" alt="Spinnenweb">
 <img src="bat.png" class="decoratie bottomleft" alt="Vleermuis">
@@ -67,7 +67,7 @@ header {
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 // --------- Instellingen ----------
-var followZoom = 16;            // zoomniveau wanneer volgen aan is (pas aan naar wens)
+var followZoom = 16;            // zoomniveau bij volgen
 var withinRadiusMeters = 20;    // actieradius
 // ---------------------------------
 
@@ -84,7 +84,7 @@ var huizen = [
   {id:3, lat:51.99995, lon:5.00015, activiteit:"Trick or Treat"}
 ];
 
-// Icons (plaats deze PNGs in dezelfde folder)
+// Icons
 var halloweenActiveIcon = L.icon({iconUrl:'pumpkin_active.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
 var halloweenVisitedIcon = L.icon({iconUrl:'pumpkin_visited.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
 
@@ -124,6 +124,69 @@ followMe.onAdd = function(map){
     L.DomEvent.preventDefault(e);
     isFollowing = !isFollowing;
     div.style.background = isFollowing ? '#ff6600' : '#555';
-    // direct naar gebruiker en zoomen wanneer we (her)activeren
     if(isFollowing && userMarker){
-      // gebruik flyTo voor vloeiende pan+zoom (bet
+      map.flyTo(userMarker.getLatLng(), followZoom, {animate:true, duration:0.8});
+    }
+  });
+  return div;
+};
+followMe.addTo(map);
+
+// --- Reset functie ---
+function resetHuizen(){
+  [1,2,3].forEach(id => localStorage.removeItem('huis_'+id));
+  alert("Huizen gereset!");
+  location.reload();
+}
+
+// --- Locatie volgen ---
+map.locate({setView:false, watch:true, enableHighAccuracy:true});
+var firstFix = true;
+
+function onLocationFound(e){
+  var latlng = e.latlng;
+
+  if(!userMarker){
+    userMarker = L.marker(latlng, {icon:userIcon}).addTo(map).bindPopup("Jij bent hier!");
+  } else {
+    userMarker.setLatLng(latlng);
+  }
+
+  userCircle.setLatLng(latlng);
+
+  // Eerste fix altijd inzoomen
+  if(firstFix){
+    map.flyTo(latlng, followZoom, {animate:true, duration:0.8});
+    firstFix = false;
+  } else if(isFollowing){
+    map.flyTo(latlng, followZoom, {animate:true, duration:0.8});
+  }
+
+  // Huizen check
+  huizen.forEach(function(huis){
+    var afstand = map.distance(latlng, [huis.lat, huis.lon]);
+    var markerEl = huis.marker.getElement();
+    if(!markerEl) return;
+    var visited = localStorage.getItem('huis_'+huis.id) === 'true';
+
+    if(afstand < withinRadiusMeters && !visited){
+      markerEl.classList.add('pulse-icon');
+      localStorage.setItem('huis_'+huis.id, 'true');
+      huis.marker.setIcon(halloweenVisitedIcon);
+      markerEl.classList.remove('pulse-icon');
+    } else {
+      markerEl.classList.remove('pulse-icon');
+      huis.marker.setIcon(visited ? halloweenVisitedIcon : halloweenActiveIcon);
+    }
+  });
+}
+
+function onLocationError(e){
+  alert("Kan je locatie niet vinden: " + e.message);
+}
+
+map.on('locationfound', onLocationFound);
+map.on('locationerror', onLocationError);
+</script>
+</body>
+</html>
