@@ -48,12 +48,16 @@ header {
   background:#ff6600; color:white; border:2px solid black;
   padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer;
 }
+
+/* Maak user icon altijd zwart */
+.user-marker {
+  filter: brightness(0) saturate(100%);
+}
 </style>
 </head>
 <body>
 <header>🎃 Halloween Tocht Slek 🎃</header>
 
-<!-- Reset knop (alleen voor de bouwer) -->
 <button id="resetButton" onclick="resetHuizen()">Reset Huizen</button>
 
 <div id="map"></div>
@@ -66,10 +70,9 @@ header {
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-// --------- Instellingen ----------
-var followZoom = 16;            // zoomniveau bij volgen
-var withinRadiusMeters = 20;    // actieradius
-// ---------------------------------
+// --- Instellingen ---
+var followZoom = 16;
+var withinRadiusMeters = 20;
 
 // --- Kaart ---
 var map = L.map('map').setView([52.0000, 5.0002], 16);
@@ -77,14 +80,13 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-// --- Huizen (voorbeelddata) ---
+// --- Huizen ---
 var huizen = [
   {id:1, lat:52.0000, lon:5.0002, activiteit:"Pompoen snijden"},
   {id:2, lat:52.00005, lon:5.00025, activiteit:"Spooktocht"},
   {id:3, lat:51.99995, lon:5.00015, activiteit:"Trick or Treat"}
 ];
 
-// Icons
 var halloweenActiveIcon = L.icon({iconUrl:'pumpkin_active.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
 var halloweenVisitedIcon = L.icon({iconUrl:'pumpkin_visited.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
 
@@ -99,9 +101,10 @@ huizen.forEach(function(huis){
 var userMarker;
 var userIcon = L.icon({
   iconUrl:'user.png',
-  iconSize:[48,64],    // pas aan naar jouw user.png afmetingen
+  iconSize:[48,64],
   iconAnchor:[24,64],
-  popupAnchor:[0,-64]
+  popupAnchor:[0,-64],
+  className:'user-marker'
 });
 
 // --- Visuele cirkel ---
@@ -154,7 +157,7 @@ function onLocationFound(e){
 
   userCircle.setLatLng(latlng);
 
-  // Eerste fix altijd inzoomen
+  // Eerste GPS fix altijd flyTo met zoom
   if(firstFix){
     map.flyTo(latlng, followZoom, {animate:true, duration:0.8});
     firstFix = false;
