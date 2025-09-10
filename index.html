@@ -19,10 +19,12 @@ header {
   border-bottom:3px solid black; position:relative; z-index:1000;
 }
 #map {
-  width:calc(100% - 20px); height:calc(100% - 120px);
-  margin:10px auto; border:6px solid #ff6600; border-radius:20px;
-  box-shadow:0 0 20px #ff6600, 0 0 40px #660000;
-  position:relative; z-index:1;
+  position:absolute;
+  top:100px; /* ruimte voor header en knoppen */
+  left:0; right:0; bottom:0;
+  border:6px solid #ff6600; border-radius:20px;
+  box-shadow:0 0 20px #ff6600,0 0 40px #660000;
+  z-index:1;
 }
 .leaflet-popup-content-wrapper {
   background-color: rgba(0,0,0,0.85); color:orange; font-weight:bold;
@@ -32,15 +34,15 @@ header {
 .pulse-icon { animation: pulse 1.2s infinite; }
 
 .decoratie { position:absolute; z-index:2000; width:60px; opacity:0.85; }
-.decoratie.topleft { top:60px; left:5px; transform:rotate(-15deg); }
-.decoratie.topright { top:60px; right:5px; transform:rotate(15deg); }
+.decoratie.topleft { top:100px; left:5px; transform:rotate(-15deg); }
+.decoratie.topright { top:100px; right:5px; transform:rotate(15deg); }
 .decoratie.bottomleft { bottom:15px; left:5px; }
 .decoratie.bottomright { bottom:15px; right:5px; }
 
 .leaflet-control-follow {
   background:#ff6600; color:white; padding:5px 10px;
   cursor:pointer; font-weight:bold; border:2px solid black;
-  border-radius:6px; user-select:none;
+  border-radius:6px; user-select:none; z-index:3000;
 }
 
 #resetButton {
@@ -48,6 +50,8 @@ header {
   background:#ff6600; color:white; border:2px solid black;
   padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer;
 }
+
+.leaflet-control { z-index:3000 !important; } /* Zorg dat controls boven decoratie blijven */
 
 /* Maak user icon altijd zwart */
 .user-marker {
@@ -75,16 +79,17 @@ var followZoom = 16.5;
 var withinRadiusMeters = 20;
 
 // --- Kaart ---
-var map = L.map('map').setView([52.0000, 5.0002], 16.5);
+var map = L.map('map').setView([51.0871502072908, 5.883705289954999], 16.5);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
 // --- Huizen ---
 var huizen = [
-  {id:1, lat:52.0000, lon:5.0002, activiteit:"Pompoen snijden"},
-  {id:2, lat:52.00005, lon:5.00025, activiteit:"Spooktocht"},
-  {id:3, lat:51.99995, lon:5.00015, activiteit:"Trick or Treat"}
+      {id:1, lat:51.08915177801586, lon:5.886047856448435, activiteit:"Pompoen snijden"},
+      {id:2, lat:51.08712549370868, lon:5.887171622260087, activiteit:"Spooktocht"},
+      {id:3, lat:51.091792299924435, lon:5.884509115831604, activiteit:"Trick or Treat"}
+      {id:4, lat:51.08738143818212, lon:5.885281178365299, activiteit:"Trick or Treat"}
 ];
 
 var halloweenActiveIcon = L.icon({iconUrl:'pumpkin_active.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
