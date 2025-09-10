@@ -91,9 +91,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // --- Huizen ---
 var huizen = [
-      {id:1, lat:51.08915177801586, lon:5.886047856448435, activiteit:"Pompoen snijden"},
-      {id:2, lat:51.08712549370868, lon:5.887171622260087, activiteit:"Spooktocht"},
-      {id:3, lat:51.091792299924435, lon:5.884509115831604, activiteit:"Trick or Treat"}
+  {id:1, lat:52.0000, lon:5.0002, activiteit:"Pompoen snijden"},
+  {id:2, lat:52.00005, lon:5.00025, activiteit:"Spooktocht"},
+  {id:3, lat:51.99995, lon:5.00015, activiteit:"Trick or Treat"}
 ];
 
 var halloweenActiveIcon = L.icon({iconUrl:'pumpkin_active.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
@@ -110,7 +110,12 @@ huizen.forEach(function(huis){
 
 // --- User marker ---
 var userMarker;
-var userIcon = L.icon({iconUrl:'user.png', iconSize:[36,48], iconAnchor:[18,36], popupAnchor:[0,-36]});
+var userIcon = L.icon({
+    iconUrl:'user.png',
+    iconSize:[48,64],    // pas dit aan naar de echte breedte/hoogte van je skelet.png
+    iconAnchor:[24,64],  // midden-onder
+    popupAnchor:[0,-64]
+});
 
 // --- Visuele cirkel 20m ---
 var userCircle = L.circle([0,0], {radius:20, color:'orange', fillColor:'rgba(255,165,0,0.2)', weight:2}).addTo(map);
@@ -128,7 +133,7 @@ followMe.onAdd = function(map){
         isFollowing = !isFollowing;
         div.style.background = isFollowing ? '#ff6600' : '#555';
         if(isFollowing && userMarker){
-            map.panTo(userMarker.getLatLng());
+            map.setView(userMarker.getLatLng(), 16, {animate:true, duration:0.5});
         }
     });
     return div;
@@ -157,9 +162,9 @@ function onLocationFound(e){
     // Update cirkel rond gebruiker
     userCircle.setLatLng(latlng);
 
-    // Alleen pannen als volgen actief
+    // Volgmodus actief: volg én zoom
     if(isFollowing){
-        map.panTo(latlng, {animate:true, duration:0.5});
+        map.setView(latlng, 16, {animate:true, duration:0.5});
     }
 
     // Huizen check
@@ -198,5 +203,3 @@ map.on('locationerror', onLocationError);
 </script>
 </body>
 </html>
-
-
