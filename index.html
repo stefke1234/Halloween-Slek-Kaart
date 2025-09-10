@@ -1,81 +1,64 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
 <title>Halloween Slek Kaart</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-html, body { 
-  height: 100%; margin: 0; padding: 0; 
-  background: #1a1a1a; 
-  font-family: "Creepster", cursive, Arial, sans-serif; 
-  color: #fff; overflow: hidden; 
+html, body {
+  height:100%; margin:0; padding:0;
+  background:#1a1a1a; font-family:"Creepster", cursive, Arial, sans-serif;
+  color:#fff; overflow:hidden;
 }
-
 header {
-  text-align: center; padding: 10px;
-  background: linear-gradient(90deg, #ff6600, #cc3300);
-  color: white; font-size: 1.5rem; font-weight: bold;
-  text-shadow: 0 0 8px black, 0 0 12px #ff6600;
-  border-bottom: 3px solid black; position: relative; z-index: 1000;
+  text-align:center; padding:10px;
+  background: linear-gradient(90deg,#ff6600,#cc3300);
+  color:white; font-size:1.5rem; font-weight:bold;
+  text-shadow:0 0 8px black,0 0 12px #ff6600;
+  border-bottom:3px solid black; position:relative; z-index:1000;
 }
-
 #map {
-  width: calc(100% - 20px); height: calc(100% - 120px);
-  margin: 10px auto; border: 6px solid #ff6600;
-  border-radius: 20px; box-shadow: 0 0 20px #ff6600, 0 0 40px #660000;
-  position: relative; z-index: 1;
+  width:calc(100% - 20px); height:calc(100% - 120px);
+  margin:10px auto; border:6px solid #ff6600; border-radius:20px;
+  box-shadow:0 0 20px #ff6600, 0 0 40px #660000;
+  position:relative; z-index:1;
 }
-
 .leaflet-popup-content-wrapper {
-  background-color: rgba(0,0,0,0.85); color: orange; font-weight: bold;
-  border-radius: 10px; border: 2px solid #ff6600; text-align: center;
+  background-color: rgba(0,0,0,0.85); color:orange; font-weight:bold;
+  border-radius:10px; border:2px solid #ff6600; text-align:center;
 }
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
+@keyframes pulse { 0%{transform:scale(1);} 50%{transform:scale(1.3);} 100%{transform:scale(1);} }
 .pulse-icon { animation: pulse 1.2s infinite; }
 
-.decoratie { position: absolute; z-index: 2000; width: 60px; opacity: 0.85; }
-.decoratie.topleft { top: 60px; left: 5px; transform: rotate(-15deg); }
-.decoratie.topright { top: 60px; right: 5px; transform: rotate(15deg); }
-.decoratie.bottomleft { bottom: 15px; left: 5px; }
-.decoratie.bottomright { bottom: 15px; right: 5px; }
+.decoratie { position:absolute; z-index:2000; width:60px; opacity:0.85; }
+.decoratie.topleft { top:60px; left:5px; transform:rotate(-15deg); }
+.decoratie.topright { top:60px; right:5px; transform:rotate(15deg); }
+.decoratie.bottomleft { bottom:15px; left:5px; }
+.decoratie.bottomright { bottom:15px; right:5px; }
 
 .leaflet-control-follow {
-  background: #ff6600; color: white; padding: 5px 10px;
-  cursor: pointer; font-weight: bold; border: 2px solid black;
-  border-radius: 6px; user-select: none;
+  background:#ff6600; color:white; padding:5px 10px;
+  cursor:pointer; font-weight:bold; border:2px solid black;
+  border-radius:6px; user-select:none;
 }
 
 #resetButton {
-  position: absolute;
-  top: 60px;
-  left: 10px;
-  z-index: 3000;
-  background: #ff6600;
-  color: white;
-  border: 2px solid black;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
+  position:absolute; top:60px; left:10px; z-index:3000;
+  background:#ff6600; color:white; border:2px solid black;
+  padding:5px 10px; border-radius:6px; font-weight:bold; cursor:pointer;
 }
 </style>
 </head>
 <body>
 <header>🎃 Halloween Tocht Slek 🎃</header>
 
-<!-- Reset knop alleen voor de bouwer -->
+<!-- Reset knop (alleen voor de bouwer) -->
 <button id="resetButton" onclick="resetHuizen()">Reset Huizen</button>
 
 <div id="map"></div>
 
-<!-- Decoratie -->
+<!-- Decoratie (voeg bat.png en web.png toe aan repo) -->
 <img src="bat.png" class="decoratie topleft" alt="Vleermuis">
 <img src="web.png" class="decoratie topright" alt="Spinnenweb">
 <img src="bat.png" class="decoratie bottomleft" alt="Vleermuis">
@@ -83,123 +66,64 @@ header {
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+// --------- Instellingen ----------
+var followZoom = 16;            // zoomniveau wanneer volgen aan is (pas aan naar wens)
+var withinRadiusMeters = 20;    // actieradius
+// ---------------------------------
+
 // --- Kaart ---
 var map = L.map('map').setView([52.0000, 5.0002], 16);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
-// --- Huizen ---
+// --- Huizen (voorbeelddata) ---
 var huizen = [
   {id:1, lat:52.0000, lon:5.0002, activiteit:"Pompoen snijden"},
   {id:2, lat:52.00005, lon:5.00025, activiteit:"Spooktocht"},
   {id:3, lat:51.99995, lon:5.00015, activiteit:"Trick or Treat"}
 ];
 
+// Icons (plaats deze PNGs in dezelfde folder)
 var halloweenActiveIcon = L.icon({iconUrl:'pumpkin_active.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
 var halloweenVisitedIcon = L.icon({iconUrl:'pumpkin_visited.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
 
-// Maak markers voor huizen
+// Maak markers
 huizen.forEach(function(huis){
-    var visited = localStorage.getItem('huis_'+huis.id) === 'true';
-    var iconToUse = visited ? halloweenVisitedIcon : halloweenActiveIcon;
-    huis.marker = L.marker([huis.lat, huis.lon], {icon: iconToUse})
-        .addTo(map)
-        .bindPopup(huis.activiteit);
+  var visited = localStorage.getItem('huis_'+huis.id) === 'true';
+  var iconToUse = visited ? halloweenVisitedIcon : halloweenActiveIcon;
+  huis.marker = L.marker([huis.lat, huis.lon], {icon: iconToUse}).addTo(map).bindPopup(huis.activiteit);
 });
 
 // --- User marker ---
 var userMarker;
 var userIcon = L.icon({
-    iconUrl:'user.png',
-    iconSize:[48,64],    // pas dit aan naar de echte breedte/hoogte van je skelet.png
-    iconAnchor:[24,64],  // midden-onder
-    popupAnchor:[0,-64]
+  iconUrl:'user.png',
+  iconSize:[48,64],    // pas aan naar jouw user.png afmetingen
+  iconAnchor:[24,64],
+  popupAnchor:[0,-64]
 });
 
-// --- Visuele cirkel 20m ---
-var userCircle = L.circle([0,0], {radius:20, color:'orange', fillColor:'rgba(255,165,0,0.2)', weight:2}).addTo(map);
+// --- Visuele cirkel ---
+var userCircle = L.circle([0,0], {
+  radius: withinRadiusMeters,
+  color:'orange',
+  fillColor:'rgba(255,165,0,0.15)',
+  weight:2
+}).addTo(map);
 
-// --- Volg mij knop ---
+// --- Volg-knop ---
 var isFollowing = true;
 var followMe = L.control({position:'topright'});
 followMe.onAdd = function(map){
-    var div = L.DomUtil.create('div', 'leaflet-control-follow');
-    div.innerHTML = '📍 Volg mij';
-    L.DomEvent.disableClickPropagation(div);
-    L.DomEvent.on(div, 'click', function(e){
-        L.DomEvent.stopPropagation(e);
-        L.DomEvent.preventDefault(e);
-        isFollowing = !isFollowing;
-        div.style.background = isFollowing ? '#ff6600' : '#555';
-        if(isFollowing && userMarker){
-            map.setView(userMarker.getLatLng(), 16, {animate:true, duration:0.5});
-        }
-    });
-    return div;
-};
-followMe.addTo(map);
-
-// --- Reset functie alleen voor jou ---
-function resetHuizen(){
-    [1,2,3].forEach(id => localStorage.removeItem('huis_'+id));
-    alert("Huizen gereset!");
-    location.reload();
-}
-
-// --- Locatie volgen ---
-map.locate({setView:false, watch:true, enableHighAccuracy:true});
-
-function onLocationFound(e){
-    var latlng = e.latlng;
-
-    if(!userMarker){
-        userMarker = L.marker(latlng, {icon:userIcon}).addTo(map).bindPopup("Jij bent hier!");
-    } else {
-        userMarker.setLatLng(latlng);
-    }
-
-    // Update cirkel rond gebruiker
-    userCircle.setLatLng(latlng);
-
-    // Volgmodus actief: volg én zoom
-    if(isFollowing){
-        map.setView(latlng, 16, {animate:true, duration:0.5});
-    }
-
-    // Huizen check
-    huizen.forEach(function(huis){
-        var afstand = map.distance(latlng,[huis.lat,huis.lon]);
-        var markerEl = huis.marker.getElement();
-        if(!markerEl) return;
-
-        var visited = localStorage.getItem('huis_'+huis.id) === 'true';
-
-        if(afstand < 20 && !visited){
-            // Binnen 20m en nog niet bezocht: pulse animatie
-            markerEl.classList.add("pulse-icon");
-            huis.marker.setIcon(halloweenActiveIcon);
-        } else {
-            // Buiten 20m of al bezocht
-            markerEl.classList.remove("pulse-icon");
-            huis.marker.setIcon(visited ? halloweenVisitedIcon : halloweenActiveIcon);
-        }
-
-        // Markeer als bezocht zodra binnen 20m radius
-        if(afstand < 20 && !visited){
-            localStorage.setItem('huis_'+huis.id,'true');
-            huis.marker.setIcon(halloweenVisitedIcon);
-            markerEl.classList.remove("pulse-icon");
-        }
-    });
-}
-
-function onLocationError(e){
-    alert("Kan je locatie niet vinden: " + e.message);
-}
-
-map.on('locationfound', onLocationFound);
-map.on('locationerror', onLocationError);
-</script>
-</body>
-</html>
+  var div = L.DomUtil.create('div', 'leaflet-control-follow');
+  div.innerHTML = '📍 Volg mij';
+  L.DomEvent.disableClickPropagation(div);
+  L.DomEvent.on(div, 'click', function(e){
+    L.DomEvent.stopPropagation(e);
+    L.DomEvent.preventDefault(e);
+    isFollowing = !isFollowing;
+    div.style.background = isFollowing ? '#ff6600' : '#555';
+    // direct naar gebruiker en zoomen wanneer we (her)activeren
+    if(isFollowing && userMarker){
+      // gebruik flyTo voor vloeiende pan+zoom (bet
