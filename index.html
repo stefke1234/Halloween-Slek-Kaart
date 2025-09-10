@@ -75,7 +75,7 @@ var followZoom = 16.5;
 var withinRadiusMeters = 20;
 
 // --- Kaart ---
-var map = L.map('map').setView([51.087829405976855, 5.884261740164177], 16);
+var map = L.map('map').setView([51.0871502072908, 5.883705289954999], 16.5);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
@@ -85,7 +85,7 @@ var huizen = [
       {id:1, lat:51.08915177801586, lon:5.886047856448435, activiteit:"Pompoen snijden"},
       {id:2, lat:51.08712549370868, lon:5.887171622260087, activiteit:"Spooktocht"},
       {id:3, lat:51.091792299924435, lon:5.884509115831604, activiteit:"Trick or Treat"}
-      {id:3, lat:51.08738143818212, lon:5.885281178365299, activiteit:"Trick or Treat"}
+      {id:4, lat:51.08738143818212, lon:5.885281178365299, activiteit:"Trick or Treat"}
 ];
 
 var halloweenActiveIcon = L.icon({iconUrl:'pumpkin_active.png', iconSize:[32,32], iconAnchor:[16,32], popupAnchor:[0,-32]});
@@ -138,9 +138,11 @@ followMe.addTo(map);
 
 // --- Reset functie ---
 function resetHuizen(){
-  [1,2,3].forEach(id => localStorage.removeItem('huis_'+id));
+  huizen.forEach(function(huis){
+    localStorage.removeItem('huis_'+huis.id);
+    huis.marker.setIcon(halloweenActiveIcon); // direct terugzetten
+  });
   alert("Huizen gereset!");
-  location.reload();
 }
 
 // --- Locatie volgen ---
@@ -194,7 +196,3 @@ map.on('locationerror', onLocationError);
 </script>
 </body>
 </html>
-
-
-
-
